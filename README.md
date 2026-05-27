@@ -127,7 +127,7 @@ Wire-Pod 采用**分层服务架构**：
 └────────────────────────────────────────────────────────────┘
 ```
 
-详细架构说明请参阅 [ARCHITECTURE.md](ARCHITECTURE.md)。
+详细架构说明请参阅 [ARCHITECTURE.md](doc/ARCHITECTURE.md)。
 
 ---
 
@@ -333,7 +333,7 @@ export DEBUG_LOGGING=true
 
 ## 常见问题
 
-详细排查指南请参阅 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)。
+详细排查指南请参阅 [TROUBLESHOOTING.md](doc/TROUBLESHOOTING.md)。
 
 ### 快速诊断
 
@@ -353,15 +353,15 @@ export DEBUG_LOGGING=true
 
 | 文档 | 内容 |
 |---|---|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | 系统架构、数据流、生命周期、线程模型 |
-| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | 目录结构、关键文件、调用关系 |
-| [API_REFERENCE.md](API_REFERENCE.md) | HTTP、gRPC、WebSocket API 文档 |
-| [AI_PIPELINE.md](AI_PIPELINE.md) | LLM Prompt 流程、上下文管理、STT→LLM→TTS 全链路 |
-| [AUDIO_PIPELINE.md](AUDIO_PIPELINE.md) | 音频采集、Opus/PCM、VAD、编解码 |
-| [ROBOT_COMMUNICATION.md](ROBOT_COMMUNICATION.md) | 通信协议、认证、状态同步 |
-| [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) | 全部配置项、环境变量、文件格式 |
-| [DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md) | 本地开发、新增模块、插件开发 |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 常见错误诊断与修复 |
+| [ARCHITECTURE.md](doc/ARCHITECTURE.md) | 系统架构、数据流、生命周期、线程模型 |
+| [PROJECT_STRUCTURE.md](doc/PROJECT_STRUCTURE.md) | 目录结构、关键文件、调用关系 |
+| [API_REFERENCE.md](doc/API_REFERENCE.md) | HTTP、gRPC、WebSocket API 文档 |
+| [AI_PIPELINE.md](doc/AI_PIPELINE.md) | LLM Prompt 流程、上下文管理、STT→LLM→TTS 全链路 |
+| [AUDIO_PIPELINE.md](doc/AUDIO_PIPELINE.md) | 音频采集、Opus/PCM、VAD、编解码 |
+| [ROBOT_COMMUNICATION.md](doc/ROBOT_COMMUNICATION.md) | 通信协议、认证、状态同步 |
+| [CONFIGURATION_GUIDE.md](doc/CONFIGURATION_GUIDE.md) | 全部配置项、环境变量、文件格式 |
+| [DEVELOPMENT_GUIDE.md](doc/DEVELOPMENT_GUIDE.md) | 本地开发、新增模块、插件开发 |
+| [TROUBLESHOOTING.md](doc/TROUBLESHOOTING.md) | 常见错误诊断与修复 |
 
 ---
 
