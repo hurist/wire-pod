@@ -126,7 +126,7 @@ Wire-Pod 采用**四层配置体系**：
 
 | 字段 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| `provider` | string | `"vosk"` | STT 引擎名称（与编译的入口对应） |
+| `provider` | string | `"vosk"` | STT 引擎名称（与编译的入口对应，可用 `vosk`、`tencent`、`whisper`、`whisper.cpp`、`coqui`、`leopard`、`houndify`） |
 | `language` | string | `"en-US"` | 语言代码 |
 
 **支持的语言代码**（Vosk/whisper.cpp）：
@@ -136,7 +136,14 @@ ja-JP, zh-CN, ru-RU, ko-KR, pl-PL, tr-TR,
 nl-NL, sv-SE
 ```
 
-> 注意：`language` 仅在 `provider` 为 `vosk` 或 `whisper.cpp` 时有效。其他引擎（Leopard、Houndify、Whisper API）固定使用英语或云端的自动语言检测。
+> 注意：`language` 仅在 `provider` 为 `vosk` 或 `whisper.cpp` 时有效。其他引擎（Leopard、Houndify、Whisper API、Tencent Cloud ASR）使用各自服务端配置或环境变量。
+
+**Tencent Cloud ASR**：
+
+- 设置 `STT_SERVICE=tencent` 并编译 `cmd/tencent/main.go`。
+- 必填 `TENCENTCLOUD_SECRET_ID`、`TENCENTCLOUD_SECRET_KEY`。
+- 默认 `TENCENT_ASR_REGION=ap-guangzhou`、`TENCENT_ASR_ENGINE_MODEL_TYPE=16k_zh`、`TENCENT_ASR_VOICE_FORMAT=pcm`。
+- wire-pod 默认上传 16kHz、16bit、单声道 PCM 到腾讯云一句话识别；这是云端 STT，不是本地离线识别。
 
 ---
 
@@ -178,6 +185,16 @@ nl-NL, sv-SE
 | `WEBSERVER_PORT` | Web UI 端口 | `8080` | 始终 |
 | `DDL_RPC_PORT` | gRPC 端口 | `443` | 首次启动 |
 | `OPENAI_KEY` | OpenAI API 密钥 | — | 首次启动 / Whisper STT |
+| `TENCENTCLOUD_SECRET_ID` | 腾讯云 SecretId | — | Tencent Cloud ASR |
+| `TENCENTCLOUD_SECRET_KEY` | 腾讯云 SecretKey | — | Tencent Cloud ASR |
+| `TENCENT_ASR_REGION` | 腾讯云 ASR 地域 | `ap-guangzhou` | Tencent Cloud ASR |
+| `TENCENT_ASR_ENGINE_MODEL_TYPE` | 一句话识别模型，如 `16k_zh`、`16k_en` | `16k_zh` | Tencent Cloud ASR |
+| `TENCENT_ASR_VOICE_FORMAT` | 上传音频格式；PCM 填 `pcm` | `pcm` | Tencent Cloud ASR |
+| `TENCENT_ASR_FILTER_DIRTY` | 是否过滤脏词：0/1/2 | 腾讯云默认 | Tencent Cloud ASR |
+| `TENCENT_ASR_FILTER_MODAL` | 是否过滤语气词：0/1/2 | 腾讯云默认 | Tencent Cloud ASR |
+| `TENCENT_ASR_FILTER_PUNC` | 是否过滤标点：0/1/2 | 腾讯云默认 | Tencent Cloud ASR |
+| `TENCENT_ASR_CONVERT_NUM_MODE` | 数字转换：0/1 | 腾讯云默认 | Tencent Cloud ASR |
+| `TENCENT_ASR_TIMEOUT_SECONDS` | 请求超时时间 | `15` | Tencent Cloud ASR |
 | `PICOVOICE_APIKEY` | Picovoice API 密钥 | — | Leopard STT |
 | `LEOPARD_APIKEY` | Leopard API 密钥（同上） | — | Leopard STT |
 | `HOUNDIFY_STT_ID` | Houndify STT Client ID | — | Houndify STT |

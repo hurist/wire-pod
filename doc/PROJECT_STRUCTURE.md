@@ -39,6 +39,7 @@ wire-pod/
 ```
 cmd/
 ├── vosk/main.go                ← 【默认入口】Vosk 本地语音识别
+├── tencent/main.go             ← Tencent Cloud ASR 云端语音识别
 ├── coqui/main.go               ← Coqui 本地语音识别（已较少使用）
 ├── leopard/main.go             ← Picovoice Leopard 语音识别
 └── experimental/
@@ -251,6 +252,7 @@ pkg/wirepod/stt/
 │   └── context.go              ← 语法优化 recognizer（VOSK_WITH_GRAMMER）
 ├── coqui/Coqui.go              ← Coqui STT 实现
 ├── leopard/Leopard.go          ← Picovoice Leopard 实现
+├── tencent/Tencent.go          ← Tencent Cloud ASR 实现
 ├── whisper/Whisper.go          ← OpenAI Whisper API 实现
 ├── whisper.cpp/WhisperCpp.go   ← 本地 whisper.cpp 实现
 └── houndify/Houndify.go        ← Houndify 实现

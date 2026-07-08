@@ -67,7 +67,7 @@
 ## 核心功能
 
 ### 语音与 AI
-- **多引擎语音识别（STT）**：Vosk（本地，默认）、Coqui、Picovoice Leopard、OpenAI Whisper API、whisper.cpp（本地）、Houndify
+- **多引擎语音识别（STT）**：Vosk（本地，默认）、Tencent Cloud ASR、Coqui、Picovoice Leopard、OpenAI Whisper API、whisper.cpp（本地）、Houndify
 - **大语言模型集成**：OpenAI GPT-4o-mini、Together AI（Llama 3）、任意 OpenAI 兼容接口
 - **流式响应**：LLM 响应按句子实时切分、实时语音合成，机器人边说边播动画
 - **对话记忆**：按机器人 ESN 保存最近 16 轮对话上下文
@@ -138,7 +138,7 @@ Wire-Pod 采用**分层服务架构**：
 | **编程语言** | Go 1.18+ |
 | **Web UI** | 原生 HTML/JS/CSS（无前端框架） |
 | **gRPC 服务** | `google.golang.org/grpc` + `cmux` 多路复用 |
-| **语音识别** | Vosk(CGO)、whisper.cpp(CGO)、OpenAI Whisper API、Coqui、Picovoice Leopard、Houndify |
+| **语音识别** | Vosk(CGO)、whisper.cpp(CGO)、OpenAI Whisper API、Tencent Cloud ASR、Coqui、Picovoice Leopard、Houndify |
 | **大语言模型** | OpenAI API (`sashabaranov/go-openai`) |
 | **音频处理** | Opus(DDL fork)、WebRTC VAD、go-audio/wav |
 | **机器人 SDK** | `fforchino/vector-go-sdk` |
@@ -177,7 +177,7 @@ setup.sh 脚本会自动完成：
 
 ```bash
 cd chipper
-go build -o chipper ./cmd/vosk   # 或 ./cmd/whisper.cpp、./cmd/coqui 等
+go build -o chipper ./cmd/vosk   # 或 ./cmd/tencent、./cmd/whisper.cpp、./cmd/coqui 等
 ```
 
 ---
@@ -197,11 +197,15 @@ cd chipper
 
 | 变量名 | 说明 | 默认值 |
 |---|---|---|
-| `STT_SERVICE` | STT 引擎（`vosk`、`whisper`、`whisper.cpp`、`coqui`、`leopard`、`houndify`） | `vosk` |
+| `STT_SERVICE` | STT 引擎（`vosk`、`tencent`、`whisper`、`whisper.cpp`、`coqui`、`leopard`、`houndify`） | `vosk` |
 | `STT_LANGUAGE` | 语言代码（如 `en-US`、`de-DE`、`zh-CN`） | `en-US` |
 | `WEBSERVER_PORT` | Web UI 端口 | `8080` |
 | `DDL_RPC_PORT` | gRPC 服务端口 | `443` |
 | `OPENAI_KEY` | OpenAI API 密钥（用于 Whisper STT 或 LLM） | — |
+| `TENCENTCLOUD_SECRET_ID` / `TENCENTCLOUD_SECRET_KEY` | 腾讯云 API 凭证（用于 Tencent Cloud ASR） | — |
+| `TENCENT_ASR_REGION` | 腾讯云 ASR 地域 | `ap-guangzhou` |
+| `TENCENT_ASR_ENGINE_MODEL_TYPE` | 腾讯云一句话识别模型 | `16k_zh` |
+| `TENCENT_ASR_VOICE_FORMAT` | 腾讯云一句话识别音频格式；wire-pod 默认上传 16kHz/16bit/mono PCM | `pcm` |
 | `PICOVOICE_APIKEY` | Picovoice API 密钥（用于 Leopard） | — |
 | `HOUNDIFY_STT_ID` / `HOUNDIFY_STT_KEY` | Houndify 凭证 | — |
 | `WEATHERAPI_ENABLED` | 启用天气 API | `false` |
@@ -209,6 +213,8 @@ cd chipper
 | `KNOWLEDGE_PROVIDER` | LLM 提供商（`openai`、`together`、`custom`、`houndify`） | — |
 | `KNOWLEDGE_KEY` | LLM 提供商 API 密钥 | — |
 | `WIREPOD_DATA_DIR` | 数据目录（Docker 环境） | `./` |
+
+`STT_SERVICE=tencent` 使用腾讯云一句话识别，音频会上传到腾讯云处理，不是本地离线识别。wire-pod 传给腾讯云的默认音频为 16kHz、16bit、单声道 PCM。
 
 ---
 

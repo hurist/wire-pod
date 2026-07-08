@@ -25,6 +25,7 @@ require (
 	github.com/sashabaranov/go-openai v1.41.2
 	github.com/soheilhy/cmux v0.1.5
 	github.com/soundhound/houndify-sdk-go v0.3.5
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/asr v1.3.113
 	github.com/vadv/gopher-lua-libs v0.5.0
 	github.com/wlynxg/anet v0.0.1
 	github.com/yuin/gopher-lua v1.1.1

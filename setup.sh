@@ -144,6 +144,7 @@ function getSTT() {
         echo "2: Picovoice Leopard (local, usage collected, accurate, account signup required)"
         echo "3: VOSK (local, accurate, multilanguage, fast, recommended)"
         echo "4: Whisper (local, accurate, multilanguage, recommended ONLY for more powerful hardware, please don't run on a Pi)"
+        echo "5: Tencent Cloud ASR (cloud, Mandarin-oriented default, account signup required)"
         echo
         read -p "Enter a number (3): " sttServiceNum
         if [[ ! -n ${sttServiceNum} ]]; then
@@ -161,6 +162,8 @@ function getSTT() {
             sttService="vosk"
             elif [[ ${sttServiceNum} == "4" ]]; then
             sttService="whisper"
+            elif [[ ${sttServiceNum} == "5" ]]; then
+            sttService="tencent"
         else
             echo
             echo "Choose a valid number, or just press enter to use the default number."
@@ -189,6 +192,32 @@ function getSTT() {
         echo "export STT_SERVICE=leopard" >> ./chipper/source.sh
         echo "export PICOVOICE_APIKEY=${picoKey}" >> ./chipper/source.sh
         echo "export PICOVOICE_APIKEY=${picoKey}" > ./chipper/pico.key
+        elif [[ ${sttService} == "tencent" ]]; then
+        function tencentSecretPrompt() {
+            echo
+            echo "Create Tencent Cloud API credentials and enter the SecretId and SecretKey."
+            echo
+            read -p "Enter your TencentCloud SecretId: " tencentSecretId
+            if [[ ! -n ${tencentSecretId} ]]; then
+                echo
+                echo "You must enter a SecretId."
+                tencentSecretPrompt
+                return
+            fi
+            read -p "Enter your TencentCloud SecretKey: " tencentSecretKey
+            if [[ ! -n ${tencentSecretKey} ]]; then
+                echo
+                echo "You must enter a SecretKey."
+                tencentSecretPrompt
+            fi
+        }
+        tencentSecretPrompt
+        echo "export STT_SERVICE=tencent" >> ./chipper/source.sh
+        echo "export TENCENTCLOUD_SECRET_ID=${tencentSecretId}" >> ./chipper/source.sh
+        echo "export TENCENTCLOUD_SECRET_KEY=${tencentSecretKey}" >> ./chipper/source.sh
+        echo "export TENCENT_ASR_REGION=ap-guangzhou" >> ./chipper/source.sh
+        echo "export TENCENT_ASR_ENGINE_MODEL_TYPE=16k_zh" >> ./chipper/source.sh
+        echo "export TENCENT_ASR_VOICE_FORMAT=pcm" >> ./chipper/source.sh
         elif [[ ${sttService} == "vosk" ]]; then
         echo "export STT_SERVICE=vosk" >> ./chipper/source.sh
         origDir="$(pwd)"
@@ -581,6 +610,9 @@ function setupSystemd() {
         export CGO_LDFLAGS="-L /root/.vosk/libvosk -lvosk -ldl -lpthread"
         export LD_LIBRARY_PATH="/root/.vosk/libvosk:$LD_LIBRARY_PATH"
         /usr/local/go/bin/go build -tags $GOTAGS -ldflags="${GOLDFLAGS}" cmd/vosk/main.go
+        elif [[ ${STT_SERVICE} == "tencent" ]]; then
+        echo "wire-pod.service created, building chipper with Tencent Cloud ASR STT service..."
+        /usr/local/go/bin/go build -tags $GOTAGS -ldflags="${GOLDFLAGS}" cmd/tencent/main.go
         elif [[ ${STT_SERVICE} == "whisper.cpp" ]]; then
         echo "wire-pod.service created, building chipper with Whisper.CPP STT service..."
         export CGO_ENABLED=1

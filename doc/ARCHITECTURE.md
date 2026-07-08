@@ -370,6 +370,7 @@ wire-pod/
 chipper/
 ├── cmd/                          ← 编译入口
 │   ├── vosk/main.go              ← 默认入口：Vosk STT
+│   ├── tencent/main.go           ← Tencent Cloud ASR 入口
 │   ├── coqui/main.go             ← Coqui STT 入口
 │   ├── leopard/main.go           ← Picovoice Leopard 入口
 │   ├── experimental/
@@ -414,6 +415,7 @@ chipper/
 │   │   │   ├── vosk/             ← Vosk 本地识别
 │   │   │   ├── coqui/            ← Coqui 本地识别
 │   │   │   ├── leopard/          ← Picovoice Leopard
+│   │   │   ├── tencent/          ← Tencent Cloud ASR 云识别
 │   │   │   ├── whisper/          ← OpenAI Whisper API
 │   │   │   ├── whisper.cpp/      ← 本地 whisper.cpp
 │   │   │   └── houndify/         ← Houndify 云识别
@@ -575,6 +577,7 @@ func STT(req sr.SpeechRequest) (string, error)
 | whisper.cpp | 本地 | 单请求独占 | CGO, `ggml-*.bin` 模型 |
 | Coqui | 本地 | 每请求新建 stream | CGO, `model.tflite` |
 | Leopard | 本地 | 固定实例池 (全局 BotNum) | `PICOVOICE_APIKEY` |
+| Tencent Cloud ASR | 云端 | 每请求上传短音频 | `TENCENTCLOUD_SECRET_ID/KEY` |
 | Whisper API | 云端 | HTTP 请求 | `OPENAI_KEY` |
 | Houndify | 云端 | 流式 HTTP | `HOUNDIFY_STT_ID/KEY` |
 

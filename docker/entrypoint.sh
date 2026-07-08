@@ -134,6 +134,46 @@ apply_env_overrides() {
         update_export "PICOVOICE_APIKEY" "${WIREPOD_PICOVOICE_APIKEY}" "${source_file}"
         printf '%s\n' "${WIREPOD_PICOVOICE_APIKEY}" >"${DATA_ROOT}/chipper/pico.key"
     fi
+
+    if [ -n "${WIREPOD_TENCENTCLOUD_SECRET_ID:-}" ]; then
+        update_export "TENCENTCLOUD_SECRET_ID" "${WIREPOD_TENCENTCLOUD_SECRET_ID}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENTCLOUD_SECRET_KEY:-}" ]; then
+        update_export "TENCENTCLOUD_SECRET_KEY" "${WIREPOD_TENCENTCLOUD_SECRET_KEY}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_REGION:-}" ]; then
+        update_export "TENCENT_ASR_REGION" "${WIREPOD_TENCENT_ASR_REGION}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_ENGINE_MODEL_TYPE:-}" ]; then
+        update_export "TENCENT_ASR_ENGINE_MODEL_TYPE" "${WIREPOD_TENCENT_ASR_ENGINE_MODEL_TYPE}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_VOICE_FORMAT:-}" ]; then
+        update_export "TENCENT_ASR_VOICE_FORMAT" "${WIREPOD_TENCENT_ASR_VOICE_FORMAT}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_FILTER_DIRTY:-}" ]; then
+        update_export "TENCENT_ASR_FILTER_DIRTY" "${WIREPOD_TENCENT_ASR_FILTER_DIRTY}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_FILTER_MODAL:-}" ]; then
+        update_export "TENCENT_ASR_FILTER_MODAL" "${WIREPOD_TENCENT_ASR_FILTER_MODAL}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_FILTER_PUNC:-}" ]; then
+        update_export "TENCENT_ASR_FILTER_PUNC" "${WIREPOD_TENCENT_ASR_FILTER_PUNC}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_CONVERT_NUM_MODE:-}" ]; then
+        update_export "TENCENT_ASR_CONVERT_NUM_MODE" "${WIREPOD_TENCENT_ASR_CONVERT_NUM_MODE}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_ASR_TIMEOUT_SECONDS:-}" ]; then
+        update_export "TENCENT_ASR_TIMEOUT_SECONDS" "${WIREPOD_TENCENT_ASR_TIMEOUT_SECONDS}" "${source_file}"
+    fi
 }
 
 persist_directories

@@ -50,6 +50,9 @@ if [[ -f ./chipper/chipper ]]; then
     elif [[ ${STT_SERVICE} == "coqui" ]]; then
         echo "wire-pod.service created, building chipper with Coqui STT service..."
         sudo LD_LIBRARY_PATH="/root/.coqui/:$LD_LIBRARY_PATH" CGO_CXXFLAGS="-I/root/.coqui/" CGO_LDFLAGS="-L/root/.coqui/" /usr/local/go/bin/go build cmd/coqui/main.go
+    elif [[ ${STT_SERVICE} == "tencent" ]]; then
+        echo "wire-pod.service created, building chipper with Tencent Cloud ASR STT service..."
+        sudo /usr/local/go/bin/go build cmd/tencent/main.go
     else
 	echo "Unsupported STT ${STT_SERVICE}. You must build this manually. The code has been updated, though."
 	exit 1
