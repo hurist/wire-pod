@@ -233,10 +233,17 @@ go run ./cmd/vosk  # 首次启动会自动引导到证书生成
 
 ### 4.3 音频播放问题
 
-**OpenAI TTS 无声**：
-- 检查 `STT_LANGUAGE != "en-US"` 或 `openai_voice_with_english == true`
-- 检查日志是否有 TTS API 错误
+**Tencent TTS 无声或回退到 Vector 英文声**：
+- 检查 `apiConfig.json` 中 `tts.provider` 是否为 `tencent`
+- 检查 `TENCENTCLOUD_SECRET_ID` / `TENCENTCLOUD_SECRET_KEY` 是否已设置且有 TTS 权限
+- 检查日志是否有 `Tencent TTS error`，常见问题包括鉴权失败、欠费、VoiceType 无效
+- 确认 `tencent_sample_rate=16000` 且 `tencent_codec=pcm`
 - 确认机器人支持 `ExternalAudioStreamPlayback`（固件 ≥1.7）
+
+**OpenAI TTS 无声**：
+- 检查 `apiConfig.json` 中 `tts.provider` 是否为 `openai`
+- 检查 `Knowledge.key` / OpenAI API key 是否有效
+- 检查日志是否有 TTS API 错误
 
 **SDK App 播放声音失败**：
 - 确认上传的是 WAV 格式

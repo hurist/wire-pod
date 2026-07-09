@@ -68,14 +68,7 @@ func sayText(robot *vector.Vector, text string) {
 			// * end - modified from official vector-go-sdk
 		}()
 		for range start {
-			robot.Conn.SayText(
-				context.Background(),
-				&vectorpb.SayTextRequest{
-					Text:           text,
-					UseVectorVoice: true,
-					DurationScalar: 1.0,
-				},
-			)
+			DoSayText(text, robot)
 			stop <- true
 		}
 	}()

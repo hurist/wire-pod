@@ -43,6 +43,10 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		handleSetKGAPI(w, r)
 	case "get_kg_api":
 		handleGetKGAPI(w)
+	case "set_tts_api":
+		handleSetTTSAPI(w, r)
+	case "get_tts_api":
+		handleGetTTSAPI(w)
 	case "set_stt_info":
 		handleSetSTTInfo(w, r)
 	case "get_download_status":
@@ -215,6 +219,23 @@ func handleSetKGAPI(w http.ResponseWriter, r *http.Request) {
 func handleGetKGAPI(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(vars.APIConfig.Knowledge)
+}
+
+func handleSetTTSAPI(w http.ResponseWriter, r *http.Request) {
+	if err := json.NewDecoder(r.Body).Decode(&vars.APIConfig.TTS); err != nil {
+		fmt.Println(err)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	vars.ApplyTTSDefaults()
+	vars.WriteConfigToDisk()
+	fmt.Fprint(w, "Changes successfully applied.")
+}
+
+func handleGetTTSAPI(w http.ResponseWriter) {
+	vars.ApplyTTSDefaults()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(vars.APIConfig.TTS)
 }
 
 func handleSetSTTInfo(w http.ResponseWriter, r *http.Request) {

@@ -107,7 +107,7 @@ STT 文本
     → 构造 OpenAI ChatCompletionRequest
     → 流式接收 LLM 输出
     → 按句子切分
-    → Vector SDK SayText / OpenAI TTS API
+    → Tencent/OpenAI/Vector TTS provider
     → 机器人播放语音 + 动画
 ```
 
@@ -223,7 +223,7 @@ flowchart TD
             STT["STT 引擎"]
             IntentMatch["意图匹配"]
             LLM["StreamingKGSim"]
-            TTS["SayText / OpenAI TTS"]
+            TTS["Tencent/OpenAI/Vector TTS"]
         end
     end
 
@@ -294,7 +294,7 @@ ttr.ProcessTextAll() — 意图匹配优先级：
                      ├── 每句提取 {{command||param}} 并执行
                      ├── Vector SDK BehaviorControl (OVERRIDE_BEHAVIORS)
                      ├── 播放 searching / tts_loop 动画
-                     └── robot.Conn.SayText() / OpenAI TTS → ExternalAudioStreamPlayback
+                     └── Tencent/OpenAI/Vector TTS → ExternalAudioStreamPlayback 或 SayText
 ```
 
 ### 2.6 音频处理链路
@@ -583,9 +583,10 @@ func STT(req sr.SpeechRequest) (string, error)
 
 **TTS 位置**：`pkg/wirepod/ttr/kgsim.go`, `pkg/wirepod/ttr/bcontrol.go`
 
-**两种方式**：
-1. **Vector 内置 TTS**：`robot.Conn.SayText(ctx, &vectorpb.SayTextRequest{UseVectorVoice: true})`
-2. **OpenAI TTS**：调用 `tts-1` API 获取 PCM，通过 `ExternalAudioStreamPlayback` 发送到机器人
+**TTS Provider**：
+1. **Tencent Cloud TTS（默认）**：调用 `TextToVoice` 获取 16kHz PCM，通过 `ExternalAudioStreamPlayback` 发送到机器人
+2. **OpenAI TTS**：调用 `tts-1` API 获取 PCM，降采样后通过 `ExternalAudioStreamPlayback` 发送到机器人
+3. **Vector 内置 TTS**：`robot.Conn.SayText(ctx, &vectorpb.SayTextRequest{UseVectorVoice: true})`
 
 ### 4.4 AI 对话模块
 
@@ -611,7 +612,7 @@ StreamingKGSim(req, esn, transcribedText, isKG)
         ├── 播放 get-in 动画
         ├── 启动 tts_loop 动画循环
         ├── 逐句：GetActionsFromString() → PerformActions()
-        │   ├── sayText 或 OpenAI TTS
+        │   ├── Tencent/OpenAI/Vector TTS
         │   ├── playAnimationWI / playAnimation
         │   └── getImage（摄像头回传）
         └── 结束：释放 behavior control

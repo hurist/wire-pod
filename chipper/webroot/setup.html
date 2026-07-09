@@ -187,6 +187,32 @@
           </form>
         </div>
         <hr class="small-hr">
+        <div>
+          <h3>TTS Setup</h3>
+          <p>Select the text-to-speech provider used when Vector speaks arbitrary text.</p>
+          <form id="ttsAPIAddForm">
+            <label for="ttsProvider">TTS Provider:</label>
+            <select name="ttsProvider" id="ttsProvider" form="ttsAPIAddForm" onchange="checkTTS()">
+              <option value="tencent" selected>Tencent Cloud TTS</option>
+              <option value="openai">OpenAI TTS</option>
+              <option value="vector">Vector built-in voice</option>
+            </select>
+            <span id="tencentTTSInput">
+              <small class="desc">Uses TENCENTCLOUD_SECRET_ID and TENCENTCLOUD_SECRET_KEY from source.sh or Docker environment.</small><br />
+              <label for="tencentTTSRegion">Tencent TTS Region:</label>
+              <input type="text" name="tencentTTSRegion" id="tencentTTSRegion" value="ap-guangzhou" /><br />
+              <label for="tencentTTSVoiceType">Tencent TTS VoiceType:</label>
+              <input type="number" name="tencentTTSVoiceType" id="tencentTTSVoiceType" value="601009" /><br />
+              <label for="tencentTTSSpeed">Tencent TTS Speed:</label>
+              <input type="number" step="0.01" name="tencentTTSSpeed" id="tencentTTSSpeed" value="0" /><br />
+              <label for="tencentTTSVolume">Tencent TTS Volume:</label>
+              <input type="number" step="0.01" name="tencentTTSVolume" id="tencentTTSVolume" value="0" /><br />
+            </span>
+          </form>
+          <button onclick="sendTTSAPI()">Apply TTS Settings</button>
+          <div id="addTTSProviderAPIStatus"></div>
+        </div>
+        <hr class="small-hr">
         <button onclick="sendKGAPIKey()">Apply Settings</button>
         <div id="addKGProviderAPIStatus"></div>
         <hr />
@@ -250,6 +276,7 @@
 <script>
   updateWeatherAPI();
   updateKGAPI();
+  updateTTSAPI();
 </script>
 
 </html>

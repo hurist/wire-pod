@@ -50,14 +50,18 @@ AI 处理 / 意图匹配
                           ▼
 TTS 输出
 ┌─────────────────────────────────────────────────────────────┐
-│  方式 A: Vector 内置 TTS                                     │
-│       SayText(text, UseVectorVoice=true)                    │
-│       → 机器人本地语音合成                                   │
+│  方式 A: Tencent Cloud TTS（默认）                            │
+│       TextToVoice → PCM 16kHz                                │
+│       → ExternalAudioStreamPlayback → 机器人播放             │
 │                                                             │
 │  方式 B: OpenAI TTS API                                      │
 │       tts-1 模型 → PCM 24kHz                                │
 │       → 降采样到 16kHz                                       │
 │       → ExternalAudioStreamPlayback → 机器人播放             │
+│                                                             │
+│  方式 C: Vector 内置 TTS                                     │
+│       SayText(text, UseVectorVoice=true)                    │
+│       → 机器人本地语音合成                                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -385,7 +389,55 @@ func STT(req sr.SpeechRequest) (string, error) {
 
 ## 7. TTS 输出
 
-### 7.1 方式一：Vector 内置 TTS
+### 7.1 TTS Provider 选择
+
+**入口**：`pkg/wirepod/ttr/kgsim_cmds.go: DoSayText()`
+
+`DoSayText()` 根据 `vars.APIConfig.TTS.Provider` 选择语音合成方案：
+
+| provider | 说明 |
+|---|---|
+| `tencent` | 默认。调用 Tencent Cloud TTS，返回 16kHz PCM 后通过 `ExternalAudioStreamPlayback` 播放 |
+| `openai` | 调用 OpenAI TTS，返回 24kHz PCM 后降采样为 16kHz PCM 播放 |
+| `vector` | 使用 Vector 内置英文 TTS |
+
+如果 Tencent TTS 失败，系统会记录错误并回退到 Vector 内置 TTS，避免完全无声。
+
+### 7.2 方式一：Tencent Cloud TTS（默认）
+
+**调用链**：
+```go
+// 1. 请求 Tencent Cloud TextToVoice
+request.Codec = "pcm"
+request.SampleRate = 16000
+request.VoiceType = 601009
+
+// 2. 解码 Response.Audio(base64)
+// 3. 切分为 1024 字节块
+// 4. 通过 ExternalAudioStreamPlayback 发送到机器人
+```
+
+**音频规格**：
+- PCM
+- 16kHz
+- 16-bit
+- mono
+- 1024 bytes 分块
+
+**配置**：
+```json
+"tts": {
+  "provider": "tencent",
+  "tencent_region": "ap-guangzhou",
+  "tencent_voice_type": 601009,
+  "tencent_sample_rate": 16000,
+  "tencent_codec": "pcm",
+  "tencent_speed": 0,
+  "tencent_volume": 0
+}
+```
+
+### 7.3 方式二：Vector 内置 TTS
 
 **调用**：`robot.Conn.SayText(ctx, &vectorpb.SayTextRequest{...})`
 
@@ -409,11 +461,10 @@ func STT(req sr.SpeechRequest) (string, error) {
 - 语音质量一般，机械感明显
 - 无法调节音色
 
-### 7.2 方式二：OpenAI TTS
+### 7.4 方式三：OpenAI TTS
 
 **触发条件**：
-- `vars.APIConfig.STT.Language != "en-US"`
-- 或 `vars.APIConfig.Knowledge.OpenAIVoiceWithEnglish == true`
+- `vars.APIConfig.TTS.Provider == "openai"`
 
 **调用链**：
 ```go
@@ -582,7 +633,7 @@ var debugWriteFile bool = true
 | 识别结果全是乱码 | Opus/PCM 检测错误 | 检查首字节，确认固件版本 |
 | 识别准确率极低 | 使用了错误的语言模型 | 确认 `STT_LANGUAGE` 与实际语言匹配 |
 | 音频播放卡顿 | 网络抖动或块大小不匹配 | 检查 `time.Sleep` 间隔是否与帧率匹配 |
-| OpenAI TTS 无声 | 降采样失败或格式错误 | 确认采样率为 16kHz，16bit LE |
+| Tencent TTS 无声 | 凭证、VoiceType、采样率或格式错误 | 确认凭证有效，采样率为 16kHz，格式为 PCM |
 
 ---
 

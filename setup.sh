@@ -136,6 +136,14 @@ function getPackages() {
 
 function getSTT() {
     echo "export DEBUG_LOGGING=true" > ./chipper/source.sh
+    echo "export TTS_PROVIDER=tencent" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_REGION=ap-guangzhou" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_VOICE_TYPE=601009" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_SAMPLE_RATE=16000" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_CODEC=pcm" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_SPEED=0" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_VOLUME=0" >> ./chipper/source.sh
+    echo "export TENCENT_TTS_TIMEOUT_SECONDS=15" >> ./chipper/source.sh
     rm -f ./chipper/pico.key
     function sttServicePrompt() {
         echo
@@ -218,6 +226,7 @@ function getSTT() {
         echo "export TENCENT_ASR_REGION=ap-guangzhou" >> ./chipper/source.sh
         echo "export TENCENT_ASR_ENGINE_MODEL_TYPE=16k_zh" >> ./chipper/source.sh
         echo "export TENCENT_ASR_VOICE_FORMAT=pcm" >> ./chipper/source.sh
+        echo "Tencent TTS will reuse the same TencentCloud credentials."
         elif [[ ${sttService} == "vosk" ]]; then
         echo "export STT_SERVICE=vosk" >> ./chipper/source.sh
         origDir="$(pwd)"

@@ -281,6 +281,11 @@ function checkKG() {
   }
 }
 
+function checkTTS() {
+  const provider = getE("ttsProvider").value;
+  getE("tencentTTSInput").style.display = provider === "tencent" ? "inline" : "none";
+}
+
 function sendKGAPIKey() {
   const provider = getE("kgProvider").value;
   const data = {
@@ -343,6 +348,33 @@ function sendKGAPIKey() {
     });
 }
 
+function sendTTSAPI() {
+  const provider = getE("ttsProvider").value;
+  const data = {
+    provider,
+    tencent_region: getE("tencentTTSRegion").value || "ap-guangzhou",
+    tencent_voice_type: parseInt(getE("tencentTTSVoiceType").value || "601009", 10),
+    tencent_sample_rate: 16000,
+    tencent_codec: "pcm",
+    tencent_speed: parseFloat(getE("tencentTTSSpeed").value || "0"),
+    tencent_volume: parseFloat(getE("tencentTTSVolume").value || "0"),
+    tencent_timeout_seconds: 15,
+  };
+
+  fetch("/api/set_tts_api", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.text())
+    .then((response) => {
+      displayMessage("addTTSProviderAPIStatus", response);
+      alert(response);
+    });
+}
+
 function deleteSavedChats() {
   if (confirm("Are you sure? This will delete all saved chats.")) {
     fetch("/api/delete_chats")
@@ -387,6 +419,19 @@ function updateKGAPI() {
         getE("intentyes").checked = data.intentgraph
       }
       checkKG();
+    });
+}
+
+function updateTTSAPI() {
+  fetch("/api/get_tts_api")
+    .then((response) => response.json())
+    .then((data) => {
+      getE("ttsProvider").value = data.provider || "tencent";
+      getE("tencentTTSRegion").value = data.tencent_region || "ap-guangzhou";
+      getE("tencentTTSVoiceType").value = data.tencent_voice_type || 601009;
+      getE("tencentTTSSpeed").value = data.tencent_speed || 0;
+      getE("tencentTTSVolume").value = data.tencent_volume || 0;
+      checkTTS();
     });
 }
 

@@ -614,19 +614,12 @@ func KGSim(esn string, textToSay string) error {
 					)
 				}
 			}()
-			textToSaySplit := strings.Split(textToSay, ". ")
-			for _, str := range textToSaySplit {
-				_, err := robot.Conn.SayText(
-					ctx,
-					&vectorpb.SayTextRequest{
-						Text:           str + ".",
-						UseVectorVoice: true,
-						DurationScalar: 1.0,
-					},
-				)
-				if err != nil {
-					logger.Println("KG SayText error: " + err.Error())
-					stop <- true
+				textToSaySplit := strings.Split(textToSay, ". ")
+				for _, str := range textToSaySplit {
+					err := DoSayText(str+".", robot)
+					if err != nil {
+						logger.Println("KG SayText error: " + err.Error())
+						stop <- true
 					break
 				}
 			}

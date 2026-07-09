@@ -20,6 +20,7 @@ import (
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 	"github.com/kercre123/wire-pod/chipper/pkg/scripting"
 	"github.com/kercre123/wire-pod/chipper/pkg/vars"
+	ttr "github.com/kercre123/wire-pod/chipper/pkg/wirepod/ttr"
 )
 
 var serverFiles string = "./webroot/sdkapp"
@@ -243,20 +244,17 @@ func SdkapiHandler(w http.ResponseWriter, r *http.Request) {
 		robots[robotIndex].BcAssumption = false
 		fmt.Fprintf(w, "success")
 		return
-	case r.URL.Path == "/api-sdk/say_text":
-		if len([]rune(r.FormValue("text"))) >= 600 {
-			fmt.Fprint(w, "error: text is too long")
-		}
-		robot.Conn.SayText(
-			ctx,
-			&vectorpb.SayTextRequest{
-				DurationScalar: 1,
-				UseVectorVoice: true,
-				Text:           r.FormValue("text"),
-			},
-		)
-		fmt.Fprintf(w, "success")
-		return
+		case r.URL.Path == "/api-sdk/say_text":
+			if len([]rune(r.FormValue("text"))) >= 600 {
+				fmt.Fprint(w, "error: text is too long")
+				return
+			}
+			if err := ttr.DoSayText(r.FormValue("text"), robot); err != nil {
+				fmt.Fprint(w, "error: "+err.Error())
+				return
+			}
+			fmt.Fprintf(w, "success")
+			return
 	case r.URL.Path == "/api-sdk/move_wheels":
 		lw, _ := strconv.Atoi(r.FormValue("lw"))
 		rw, _ := strconv.Atoi(r.FormValue("rw"))

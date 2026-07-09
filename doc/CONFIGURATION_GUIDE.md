@@ -69,6 +69,16 @@ Wire-Pod 采用**四层配置体系**：
     "provider": "vosk",
     "language": "en-US"
   },
+  "tts": {
+    "provider": "tencent",
+    "tencent_region": "ap-guangzhou",
+    "tencent_voice_type": 601009,
+    "tencent_sample_rate": 16000,
+    "tencent_codec": "pcm",
+    "tencent_speed": 0,
+    "tencent_volume": 0,
+    "tencent_timeout_seconds": 15
+  },
   "server": {
     "epconfig": true,
     "port": "443"
@@ -138,6 +148,29 @@ nl-NL, sv-SE
 
 > 注意：`language` 仅在 `provider` 为 `vosk` 或 `whisper.cpp` 时有效。其他引擎（Leopard、Houndify、Whisper API、Tencent Cloud ASR）使用各自服务端配置或环境变量。
 
+---
+
+#### TTS（语音合成）
+
+| 字段 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `provider` | string | `"tencent"` | TTS 提供商：`tencent`、`openai`、`vector` |
+| `tencent_region` | string | `"ap-guangzhou"` | 腾讯云 TTS 地域 |
+| `tencent_voice_type` | int | `601009` | 腾讯云 TTS 音色 ID |
+| `tencent_sample_rate` | int | `16000` | 腾讯 TTS 返回采样率；Vector 播放要求 `16000` |
+| `tencent_codec` | string | `"pcm"` | 腾讯 TTS 返回格式；Vector 播放要求 `pcm` |
+| `tencent_speed` | float | `0` | 腾讯 TTS 语速 |
+| `tencent_volume` | float | `0` | 腾讯 TTS 音量 |
+| `tencent_timeout_seconds` | int | `15` | 腾讯 TTS 请求超时 |
+
+**Provider 说明**：
+
+- **tencent**：默认方案。调用 Tencent Cloud `TextToVoice`，请求 `pcm`/`16000`，通过 `ExternalAudioStreamPlayback` 播放。
+- **openai**：沿用 OpenAI TTS，使用 `Knowledge.key` 和 `Knowledge.openai_voice`。
+- **vector**：使用 Vector 内置英文 TTS。
+
+Tencent TTS 凭证复用环境变量 `TENCENTCLOUD_SECRET_ID` 和 `TENCENTCLOUD_SECRET_KEY`。如果凭证缺失或调用失败，运行时会记录错误并回退到 Vector 内置 TTS。
+
 **Tencent Cloud ASR**：
 
 - 设置 `STT_SERVICE=tencent` 并编译 `cmd/tencent/main.go`。
@@ -185,8 +218,8 @@ nl-NL, sv-SE
 | `WEBSERVER_PORT` | Web UI 端口 | `8080` | 始终 |
 | `DDL_RPC_PORT` | gRPC 端口 | `443` | 首次启动 |
 | `OPENAI_KEY` | OpenAI API 密钥 | — | 首次启动 / Whisper STT |
-| `TENCENTCLOUD_SECRET_ID` | 腾讯云 SecretId | — | Tencent Cloud ASR |
-| `TENCENTCLOUD_SECRET_KEY` | 腾讯云 SecretKey | — | Tencent Cloud ASR |
+| `TENCENTCLOUD_SECRET_ID` | 腾讯云 SecretId | — | Tencent Cloud ASR / TTS |
+| `TENCENTCLOUD_SECRET_KEY` | 腾讯云 SecretKey | — | Tencent Cloud ASR / TTS |
 | `TENCENT_ASR_REGION` | 腾讯云 ASR 地域 | `ap-guangzhou` | Tencent Cloud ASR |
 | `TENCENT_ASR_ENGINE_MODEL_TYPE` | 一句话识别模型，如 `16k_zh`、`16k_en` | `16k_zh` | Tencent Cloud ASR |
 | `TENCENT_ASR_VOICE_FORMAT` | 上传音频格式；PCM 填 `pcm` | `pcm` | Tencent Cloud ASR |
@@ -195,6 +228,14 @@ nl-NL, sv-SE
 | `TENCENT_ASR_FILTER_PUNC` | 是否过滤标点：0/1/2 | 腾讯云默认 | Tencent Cloud ASR |
 | `TENCENT_ASR_CONVERT_NUM_MODE` | 数字转换：0/1 | 腾讯云默认 | Tencent Cloud ASR |
 | `TENCENT_ASR_TIMEOUT_SECONDS` | 请求超时时间 | `15` | Tencent Cloud ASR |
+| `TTS_PROVIDER` | TTS 提供商：`tencent`、`openai`、`vector` | `tencent` | 首次启动 / TTS |
+| `TENCENT_TTS_REGION` | 腾讯云 TTS 地域 | `ap-guangzhou` | Tencent Cloud TTS |
+| `TENCENT_TTS_VOICE_TYPE` | 腾讯云 TTS 音色 ID | `601009` | Tencent Cloud TTS |
+| `TENCENT_TTS_SAMPLE_RATE` | 腾讯云 TTS 采样率；Vector 要求 16kHz | `16000` | Tencent Cloud TTS |
+| `TENCENT_TTS_CODEC` | 腾讯云 TTS 返回格式；Vector 要求 PCM | `pcm` | Tencent Cloud TTS |
+| `TENCENT_TTS_SPEED` | 腾讯云 TTS 语速 | `0` | Tencent Cloud TTS |
+| `TENCENT_TTS_VOLUME` | 腾讯云 TTS 音量 | `0` | Tencent Cloud TTS |
+| `TENCENT_TTS_TIMEOUT_SECONDS` | 腾讯云 TTS 请求超时 | `15` | Tencent Cloud TTS |
 | `PICOVOICE_APIKEY` | Picovoice API 密钥 | — | Leopard STT |
 | `LEOPARD_APIKEY` | Leopard API 密钥（同上） | — | Leopard STT |
 | `HOUNDIFY_STT_ID` | Houndify STT Client ID | — | Houndify STT |

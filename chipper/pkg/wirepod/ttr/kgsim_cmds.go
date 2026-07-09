@@ -288,11 +288,22 @@ func DoPlaySound(sound string, robot *vector.Vector) error {
 func DoSayText(input string, robot *vector.Vector) error {
 
 	// just before vector speaks
-	removeSpecialCharacters(input)
+	input = removeSpecialCharacters(input)
 
-	if (vars.APIConfig.STT.Language != "en-US" && vars.APIConfig.Knowledge.Provider == "openai") || vars.APIConfig.Knowledge.OpenAIVoiceWithEnglish {
+	switch strings.ToLower(strings.TrimSpace(vars.APIConfig.TTS.Provider)) {
+	case "tencent", "":
+		err := DoSayText_Tencent(robot, input)
+		if err == nil {
+			return nil
+		}
+		logger.Println("Tencent TTS failed, falling back to Vector voice: " + err.Error())
+	case "openai":
 		err := DoSayText_OpenAI(robot, input)
 		return err
+	case "vector", "inbuilt", "builtin":
+		// Fall through to Vector's built-in TTS below.
+	default:
+		logger.Println("Unknown TTS provider '" + vars.APIConfig.TTS.Provider + "', falling back to Vector voice")
 	}
 	robot.Conn.SayText(
 		context.Background(),
@@ -349,45 +360,8 @@ func DoSayText_OpenAI(robot *vector.Vector, input string) error {
 		return err
 	}
 	speechBytes, _ := io.ReadAll(resp)
-	vclient, err := robot.Conn.ExternalAudioStreamPlayback(context.Background())
-	if err != nil {
-		return err
-	}
-	vclient.Send(&vectorpb.ExternalAudioStreamRequest{
-		AudioRequestType: &vectorpb.ExternalAudioStreamRequest_AudioStreamPrepare{
-			AudioStreamPrepare: &vectorpb.ExternalAudioStreamPrepare{
-				AudioFrameRate: 16000,
-				AudioVolume:    100,
-			},
-		},
-	})
-	//time.Sleep(time.Millisecond * 30)
 	audioChunks := downsample24kTo16k(speechBytes)
-
-	var chunksToDetermineLength []byte
-	for _, chunk := range audioChunks {
-		chunksToDetermineLength = append(chunksToDetermineLength, chunk...)
-	}
-	go func() {
-		for _, chunk := range audioChunks {
-			vclient.Send(&vectorpb.ExternalAudioStreamRequest{
-				AudioRequestType: &vectorpb.ExternalAudioStreamRequest_AudioStreamChunk{
-					AudioStreamChunk: &vectorpb.ExternalAudioStreamChunk{
-						AudioChunkSizeBytes: 1024,
-						AudioChunkSamples:   chunk,
-					},
-				},
-			})
-			time.Sleep(time.Millisecond * 25)
-		}
-		vclient.Send(&vectorpb.ExternalAudioStreamRequest{
-			AudioRequestType: &vectorpb.ExternalAudioStreamRequest_AudioStreamComplete{
-				AudioStreamComplete: &vectorpb.ExternalAudioStreamComplete{},
-			},
-		})
-	}()
-	time.Sleep(pcmLength(chunksToDetermineLength) + (time.Millisecond * 50))
-	return nil
+	return playPCM16kChunks(robot, audioChunks)
 }
 
 func DoGetImage(msgs []openai.ChatCompletionMessage, param string, robot *vector.Vector, stopStop chan bool) {

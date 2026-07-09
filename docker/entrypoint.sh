@@ -174,6 +174,38 @@ apply_env_overrides() {
     if [ -n "${WIREPOD_TENCENT_ASR_TIMEOUT_SECONDS:-}" ]; then
         update_export "TENCENT_ASR_TIMEOUT_SECONDS" "${WIREPOD_TENCENT_ASR_TIMEOUT_SECONDS}" "${source_file}"
     fi
+
+    if [ -n "${WIREPOD_TTS_PROVIDER:-}" ]; then
+        update_export "TTS_PROVIDER" "${WIREPOD_TTS_PROVIDER}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_REGION:-}" ]; then
+        update_export "TENCENT_TTS_REGION" "${WIREPOD_TENCENT_TTS_REGION}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_VOICE_TYPE:-}" ]; then
+        update_export "TENCENT_TTS_VOICE_TYPE" "${WIREPOD_TENCENT_TTS_VOICE_TYPE}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_SAMPLE_RATE:-}" ]; then
+        update_export "TENCENT_TTS_SAMPLE_RATE" "${WIREPOD_TENCENT_TTS_SAMPLE_RATE}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_CODEC:-}" ]; then
+        update_export "TENCENT_TTS_CODEC" "${WIREPOD_TENCENT_TTS_CODEC}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_SPEED:-}" ]; then
+        update_export "TENCENT_TTS_SPEED" "${WIREPOD_TENCENT_TTS_SPEED}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_VOLUME:-}" ]; then
+        update_export "TENCENT_TTS_VOLUME" "${WIREPOD_TENCENT_TTS_VOLUME}" "${source_file}"
+    fi
+
+    if [ -n "${WIREPOD_TENCENT_TTS_TIMEOUT_SECONDS:-}" ]; then
+        update_export "TENCENT_TTS_TIMEOUT_SECONDS" "${WIREPOD_TENCENT_TTS_TIMEOUT_SECONDS}" "${source_file}"
+    fi
 }
 
 persist_directories

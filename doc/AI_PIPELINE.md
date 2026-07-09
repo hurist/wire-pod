@@ -445,25 +445,34 @@ func PerformActions(nChat []openai.ChatCompletionMessage,
 
 ### 5.3 TTS 实现方式
 
-**方式一：Vector 内置 TTS（默认）**
+**方式一：Tencent Cloud TTS（默认）**
 ```go
-robot.Conn.SayText(ctx, &vectorpb.SayTextRequest{
-    Text:           sentence,
-    UseVectorVoice: true,
-    DurationScalar: 1.0,
-})
+request := tts.NewTextToVoiceRequest()
+request.Text = &sentence
+request.VoiceType = 601009
+request.SampleRate = 16000
+request.Codec = "pcm"
+// 解码 Response.Audio 后通过 ExternalAudioStreamPlayback 发送到机器人
 ```
 
 **方式二：OpenAI TTS API**
 使用条件：
-- `vars.APIConfig.STT.Language != "en-US"`（非英语）
-- 或 `vars.APIConfig.Knowledge.OpenAIVoiceWithEnglish == true`
+- `vars.APIConfig.TTS.Provider == "openai"`
 
 ```go
 // 调用 OpenAI TTS API（tts-1 模型，PCM 输出）
 audioData := openai.CreateSpeech(...)
 // 从 24kHz 降采样到 16kHz
 // 通过 ExternalAudioStreamPlayback 发送到机器人
+```
+
+**方式三：Vector 内置 TTS**
+```go
+robot.Conn.SayText(ctx, &vectorpb.SayTextRequest{
+    Text:           sentence,
+    UseVectorVoice: true,
+    DurationScalar: 1.0,
+})
 ```
 
 ### 5.4 中断机制
@@ -604,7 +613,7 @@ Vector 的内置 TTS 引擎对某些符号读法奇怪（如 `#` 读成 "hash"�
 ### 7.3 多语言支持
 
 - Prompt 使用英文编写，但 LLM 会根据 User 消息的语言自动切换回复语言
-- 非英语场景建议使用 OpenAI TTS（`tts-1`），因为 Vector 内置 TTS 仅支持英语
+- 非英语场景默认使用 Tencent Cloud TTS；也可切换到 OpenAI TTS
 - `removeSpecialCharacters()` 函数对越南语等带声调标记的语言有特殊处理（保留 Unicode 组合字符）
 
 ---
@@ -679,7 +688,7 @@ Wire-Pod **未使用** OpenAI 的 Function Calling 机制。而是采用更简�
 |---|---|---|
 | LLM 不回复 | API key 无效/欠费 | 查看日志 `Error creating chat completion stream` |
 | 回复太长 | Prompt 未限制长度 | 检查 System Prompt 是否包含 "concise" |
-| 机器人不说中文 | 未启用 OpenAI TTS | 确认 `STT_LANGUAGE != "en-US"` 或 `openai_voice_with_english == true` |
+| 机器人不说中文 | TTS provider 未配置或腾讯 TTS 回退 | 确认 `tts.provider=tencent` 且腾讯凭证有效，或改用 `tts.provider=openai` |
 | 命令不执行 | LLM 未输出正确格式 | 在日志中查看原始 LLM 输出是否包含 `{{...}}` |
 | 对话不连贯 | SaveChat 未启用 | 检查 Web UI 中 "Save Chat" 是否勾选 |
 | 动画和语音重叠 | 命令解析失败 | 检查 `kgsim_cmds.go` 中动画队列状态 |

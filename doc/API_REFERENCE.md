@@ -359,6 +359,36 @@ HTTP POST → handleAddCustomIntent()
 
 ---
 
+#### TTS 配置
+
+##### POST /api/set_tts_api
+
+**功能**：设置语音合成提供商和参数。
+
+**请求体**（JSON，直接对应 `vars.APIConfig.TTS` 结构）：
+```json
+{
+  "provider": "tencent",
+  "tencent_region": "ap-guangzhou",
+  "tencent_voice_type": 601009,
+  "tencent_sample_rate": 16000,
+  "tencent_codec": "pcm",
+  "tencent_speed": 0,
+  "tencent_volume": 0,
+  "tencent_timeout_seconds": 15
+}
+```
+
+**服务端实现**：`config-ws/webserver.go: handleSetTTSAPI()`
+
+---
+
+##### GET /api/get_tts_api
+
+**响应**：`vars.APIConfig.TTS` 的 JSON 序列化。
+
+---
+
 #### STT 配置
 
 ##### POST /api/set_stt_info

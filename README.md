@@ -206,6 +206,13 @@ cd chipper
 | `TENCENT_ASR_REGION` | 腾讯云 ASR 地域 | `ap-guangzhou` |
 | `TENCENT_ASR_ENGINE_MODEL_TYPE` | 腾讯云一句话识别模型 | `16k_zh` |
 | `TENCENT_ASR_VOICE_FORMAT` | 腾讯云一句话识别音频格式；wire-pod 默认上传 16kHz/16bit/mono PCM | `pcm` |
+| `TTS_PROVIDER` | TTS 提供商（`tencent`、`openai`、`vector`） | `tencent` |
+| `TENCENT_TTS_REGION` | 腾讯云 TTS 地域 | `ap-guangzhou` |
+| `TENCENT_TTS_VOICE_TYPE` | 腾讯云 TTS 音色 ID | `601009` |
+| `TENCENT_TTS_SAMPLE_RATE` | 腾讯云 TTS 采样率；Vector 播放要求 16kHz | `16000` |
+| `TENCENT_TTS_CODEC` | 腾讯云 TTS 音频格式；Vector 播放要求 PCM | `pcm` |
+| `TENCENT_TTS_SPEED` | 腾讯云 TTS 语速 | `0` |
+| `TENCENT_TTS_VOLUME` | 腾讯云 TTS 音量 | `0` |
 | `PICOVOICE_APIKEY` | Picovoice API 密钥（用于 Leopard） | — |
 | `HOUNDIFY_STT_ID` / `HOUNDIFY_STT_KEY` | Houndify 凭证 | — |
 | `WEATHERAPI_ENABLED` | 启用天气 API | `false` |
@@ -215,6 +222,8 @@ cd chipper
 | `WIREPOD_DATA_DIR` | 数据目录（Docker 环境） | `./` |
 
 `STT_SERVICE=tencent` 使用腾讯云一句话识别，音频会上传到腾讯云处理，不是本地离线识别。wire-pod 传给腾讯云的默认音频为 16kHz、16bit、单声道 PCM。
+
+默认 TTS 提供商为 Tencent Cloud TTS。它复用 `TENCENTCLOUD_SECRET_ID` / `TENCENTCLOUD_SECRET_KEY`，默认 `VoiceType=601009`，请求 Tencent 返回 16kHz PCM 后通过 `ExternalAudioStreamPlayback` 播放。
 
 ---
 
@@ -363,6 +372,7 @@ export DEBUG_LOGGING=true
 | [PROJECT_STRUCTURE.md](doc/PROJECT_STRUCTURE.md) | 目录结构、关键文件、调用关系 |
 | [API_REFERENCE.md](doc/API_REFERENCE.md) | HTTP、gRPC、WebSocket API 文档 |
 | [AI_PIPELINE.md](doc/AI_PIPELINE.md) | LLM Prompt 流程、上下文管理、STT→LLM→TTS 全链路 |
+| [TENCENT_TTS.md](doc/TENCENT_TTS.md) | Tencent Cloud TTS 配置、播放链路和故障排查 |
 | [AUDIO_PIPELINE.md](doc/AUDIO_PIPELINE.md) | 音频采集、Opus/PCM、VAD、编解码 |
 | [ROBOT_COMMUNICATION.md](doc/ROBOT_COMMUNICATION.md) | 通信协议、认证、状态同步 |
 | [CONFIGURATION_GUIDE.md](doc/CONFIGURATION_GUIDE.md) | 全部配置项、环境变量、文件格式 |

@@ -3,6 +3,8 @@ package vars
 import (
 	"encoding/json"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/kercre123/wire-pod/chipper/pkg/logger"
 )
@@ -41,6 +43,16 @@ type apiConfig struct {
 		Service  string `json:"provider"`
 		Language string `json:"language"`
 	} `json:"STT"`
+	TTS struct {
+		Provider          string  `json:"provider"`
+		TencentRegion     string  `json:"tencent_region"`
+		TencentVoiceType  int64   `json:"tencent_voice_type"`
+		TencentSampleRate int64   `json:"tencent_sample_rate"`
+		TencentCodec      string  `json:"tencent_codec"`
+		TencentSpeed      float64 `json:"tencent_speed"`
+		TencentVolume     float64 `json:"tencent_volume"`
+		TencentTimeoutSec int64   `json:"tencent_timeout_seconds"`
+	} `json:"tts"`
 	Server struct {
 		// false for ip, true for escape pod
 		EPConfig bool   `json:"epconfig"`
@@ -77,6 +89,7 @@ func CreateConfigFromEnv() {
 		APIConfig.Knowledge.Enable = false
 	}
 	WriteSTT()
+	ApplyTTSDefaults()
 	APIConfig.HasReadFromEnv = true
 	writeBytes, _ := json.Marshal(APIConfig)
 	os.WriteFile(ApiConfigPath, writeBytes, 0644)
@@ -128,9 +141,71 @@ func ReadConfig() {
 			logger.Println("Setting Together model to Llama3")
 			APIConfig.Knowledge.Model = "meta-llama/Llama-3-70b-chat-hf"
 		}
+		ApplyTTSDefaults()
 
 		writeBytes, _ := json.Marshal(APIConfig)
 		os.WriteFile(ApiConfigPath, writeBytes, 0644)
 		logger.Println("API config successfully read")
 	}
+}
+
+func ApplyTTSDefaults() {
+	if strings.TrimSpace(APIConfig.TTS.Provider) == "" {
+		APIConfig.TTS.Provider = envOrDefault("TTS_PROVIDER", "tencent")
+	}
+	if strings.TrimSpace(APIConfig.TTS.TencentRegion) == "" {
+		APIConfig.TTS.TencentRegion = envOrDefault("TENCENT_TTS_REGION", "ap-guangzhou")
+	}
+	if APIConfig.TTS.TencentVoiceType == 0 {
+		APIConfig.TTS.TencentVoiceType = envInt64OrDefault("TENCENT_TTS_VOICE_TYPE", 601009)
+	}
+	if APIConfig.TTS.TencentSampleRate == 0 {
+		APIConfig.TTS.TencentSampleRate = envInt64OrDefault("TENCENT_TTS_SAMPLE_RATE", 16000)
+	}
+	if strings.TrimSpace(APIConfig.TTS.TencentCodec) == "" {
+		APIConfig.TTS.TencentCodec = strings.ToLower(envOrDefault("TENCENT_TTS_CODEC", "pcm"))
+	}
+	if APIConfig.TTS.TencentTimeoutSec == 0 {
+		APIConfig.TTS.TencentTimeoutSec = envInt64OrDefault("TENCENT_TTS_TIMEOUT_SECONDS", 15)
+	}
+	if envValue := strings.TrimSpace(os.Getenv("TENCENT_TTS_SPEED")); envValue != "" {
+		APIConfig.TTS.TencentSpeed = envFloat64OrDefault("TENCENT_TTS_SPEED", APIConfig.TTS.TencentSpeed)
+	}
+	if envValue := strings.TrimSpace(os.Getenv("TENCENT_TTS_VOLUME")); envValue != "" {
+		APIConfig.TTS.TencentVolume = envFloat64OrDefault("TENCENT_TTS_VOLUME", APIConfig.TTS.TencentVolume)
+	}
+}
+
+func envOrDefault(key string, fallback string) string {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	return value
+}
+
+func envInt64OrDefault(key string, fallback int64) int64 {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		logger.Println("Invalid " + key + ", using default " + strconv.FormatInt(fallback, 10))
+		return fallback
+	}
+	return parsed
+}
+
+func envFloat64OrDefault(key string, fallback float64) float64 {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+	parsed, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		logger.Println("Invalid " + key + ", using default")
+		return fallback
+	}
+	return parsed
 }
